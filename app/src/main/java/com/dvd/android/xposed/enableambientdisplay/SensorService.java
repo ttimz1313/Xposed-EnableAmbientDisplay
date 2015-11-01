@@ -26,6 +26,7 @@ package com.dvd.android.xposed.enableambientdisplay;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -67,7 +68,12 @@ public class SensorService extends Service implements SensorEventListener {
 		DisplayManager dm = (DisplayManager) getSystemService(DISPLAY_SERVICE);
 		int state = dm.getDisplay(0).getState();
 
-		if ((int) event.values[0] == 5 && state != Display.STATE_ON) {
+		SharedPreferences prefs = getSharedPreferences(
+				getPackageName() + "_preferences", MODE_PRIVATE);
+		boolean enabled = prefs.getBoolean("pick_up_enabled", true);
+
+		if (enabled && (int) event.values[0] == 5
+				&& state != Display.STATE_ON) {
 			Command command = new Command(0,
 					"am broadcast -a com.android.systemui.doze.pulse");
 			try {

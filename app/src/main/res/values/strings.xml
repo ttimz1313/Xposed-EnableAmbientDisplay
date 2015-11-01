@@ -46,4 +46,6 @@
     <string name="root_not_found">Root not found</string>
     <string name="grant_root">Please grant root</string>
     <string name="disable_notifications">NOTE: Disable superuser notification from SuperSu for this app</string>
+    <string name="doze_not_pulse">Doze on pick up is disabled</string>
+    <string name="doze_will_pulse">Doze on pick up is enabled</string>
 </resources>

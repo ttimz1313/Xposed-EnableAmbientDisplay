@@ -71,6 +71,13 @@
 
     <PreferenceCategory android:title="@string/doze_on_pick_up">
 
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pick_up_enabled"
+            android:summaryOff="@string/doze_not_pulse"
+            android:summaryOn="@string/doze_will_pulse"
+            android:title="@string/doze_on_pick_up"/>
+
         <Preference
             android:key="root"
             android:summary="@string/root_required_summ"
