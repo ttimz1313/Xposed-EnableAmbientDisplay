@@ -38,20 +38,26 @@ import android.view.MenuItem;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
-public class MainActivity extends PreferenceActivity implements
-		SharedPreferences.OnSharedPreferenceChangeListener {
+import com.stericson.RootShell.RootShell;
+import com.stericson.RootShell.exceptions.RootDeniedException;
+import com.stericson.RootShell.execution.Command;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+@SuppressWarnings("deprecation")
+public class MainActivity extends PreferenceActivity
+		implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 	@Override
-	@SuppressWarnings("deprecation")
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getPreferenceManager().setSharedPreferencesMode(
-				Context.MODE_WORLD_READABLE);
+		getPreferenceManager()
+				.setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
 		addPreferencesFromResource(R.xml.prefs);
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	protected void onResume() {
 		super.onResume();
 		getPreferenceScreen().getSharedPreferences()
@@ -59,15 +65,15 @@ public class MainActivity extends PreferenceActivity implements
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	protected void onPause() {
 		super.onPause();
 		getPreferenceScreen().getSharedPreferences()
 				.unregisterOnSharedPreferenceChangeListener(this);
+
+		findPreference("root").setEnabled(!RootShell.isAccessGiven());
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
 		if (sharedPreferences.getString(key, "").equals("")) {
@@ -76,7 +82,8 @@ public class MainActivity extends PreferenceActivity implements
 			} else {
 				sharedPreferences.edit().putString(key, "1000").apply();
 			}
-			EditTextPreference editTextPreference = (EditTextPreference) findPreference(key);
+			EditTextPreference editTextPreference = (EditTextPreference) findPreference(
+					key);
 			editTextPreference.setText(sharedPreferences.getString(key, ""));
 		}
 
@@ -95,21 +102,21 @@ public class MainActivity extends PreferenceActivity implements
 		switch (item.getItemId()) {
 			case R.id.reboot:
 				try {
-					Process proc = Runtime.getRuntime().exec(
-							new String[] { "su", "-c", "reboot" });
-					proc.waitFor();
-				} catch (Exception ex) {
-					ex.printStackTrace();
+					RootShell.getShell(true).add(new Command(0, "reboot"));
+				} catch (IOException | TimeoutException
+						| RootDeniedException e) {
+					Toast.makeText(MainActivity.this, e.getMessage(),
+							Toast.LENGTH_SHORT).show();
 				}
 				break;
 			case R.id.hot_reboot:
 				try {
-					Process proc = Runtime.getRuntime().exec(
-							new String[] { "su", "-c",
-									"busybox killall system_server" });
-					proc.waitFor();
-				} catch (Exception ex) {
-					ex.printStackTrace();
+					RootShell.getShell(true).add(
+							new Command(0, "busybox killall system_server"));
+				} catch (IOException | TimeoutException
+						| RootDeniedException e) {
+					Toast.makeText(MainActivity.this, e.getMessage(),
+							Toast.LENGTH_SHORT).show();
 				}
 				break;
 		}
@@ -118,7 +125,6 @@ public class MainActivity extends PreferenceActivity implements
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
 			Preference preference) {
 
@@ -132,16 +138,32 @@ public class MainActivity extends PreferenceActivity implements
 			case "doze_pulse_schedule_resets":
 				createAlert(preference.getKey(), "1", 5);
 				break;
+			case "root":
+				if (RootShell.isRootAvailable()) {
+					Command command = new Command(0, "echo test");
+					try {
+						RootShell.getShell(true).add(command);
+					} catch (IOException | TimeoutException e) {
+						e.printStackTrace();
+					} catch (RootDeniedException e) {
+						Toast.makeText(MainActivity.this, R.string.grant_root,
+								Toast.LENGTH_SHORT).show();
+					}
+				} else {
+					Toast.makeText(MainActivity.this, R.string.root_not_found,
+							Toast.LENGTH_SHORT).show();
+				}
+				break;
 		}
 
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
 	}
 
-	@SuppressWarnings("deprecation")
-	private void createAlert(final String key, String defaultValue, int maxValue) {
+	private void createAlert(final String key, String defaultValue,
+			int maxValue) {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		alert.setTitle(getResources().getIdentifier(key, "string",
-				getPackageName()));
+		alert.setTitle(
+				getResources().getIdentifier(key, "string", getPackageName()));
 		final NumberPicker np = new NumberPicker(this);
 		np.setMinValue(1);
 		np.setMaxValue(maxValue);
@@ -152,9 +174,7 @@ public class MainActivity extends PreferenceActivity implements
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						getPreferenceManager()
-								.getSharedPreferences()
-								.edit()
+						getPreferenceManager().getSharedPreferences().edit()
 								.putString(key, Integer.toString(np.getValue()))
 								.apply();
 					}

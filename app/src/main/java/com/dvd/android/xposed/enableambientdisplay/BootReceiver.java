@@ -22,28 +22,19 @@
  * SOFTWARE.
  */
 
+package com.dvd.android.xposed.enableambientdisplay;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 
-apply plugin: 'com.android.application'
+public class BootReceiver extends BroadcastReceiver {
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
-    defaultConfig {
-        applicationId "com.dvd.android.xposed.enableambientdisplay"
-        minSdkVersion 21
-        targetSdkVersion 23
-        versionCode 3
-        versionName '1.2'
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+			context.startService(new Intent(context, SensorService.class));
+		}
+	}
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
 }

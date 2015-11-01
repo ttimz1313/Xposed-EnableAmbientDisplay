@@ -69,4 +69,15 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/doze_on_pick_up">
+
+        <Preference
+            android:key="root"
+            android:summary="@string/root_required_summ"
+            android:title="@string/root_required"/>
+
+        <Preference android:summary="@string/disable_notifications"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

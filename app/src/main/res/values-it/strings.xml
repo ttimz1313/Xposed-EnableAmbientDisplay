@@ -40,4 +40,10 @@
     <string name="reboot_required">Riavvio richiesto</string>
     <string name="doze_pulse_schedule_resets">Numero massimo di volte che lo schermo si accenderà</string>
     <string name="customizations">Personalizzazioni</string>
+    <string name="doze_on_pick_up">Attivare doze a telefono alzato</string>
+    <string name="grant_root">Concedi i permessi di root</string>
+    <string name="root_not_found">Root non trovato</string>
+    <string name="root_required">Root richiesto</string>
+    <string name="root_required_summ">Clicca qui per concedere permessi root</string>
+    <string name="disable_notifications">NOTA: Disabilita le notifiche da SuperSu per questa app</string>
 </resources>
