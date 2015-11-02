@@ -45,6 +45,8 @@ import java.util.concurrent.TimeoutException;
 
 public class SensorService extends Service implements SensorEventListener {
 
+	public static boolean isRunning = false;
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -55,6 +57,7 @@ public class SensorService extends Service implements SensorEventListener {
 		sensorManager.registerListener(this, sensor,
 				SensorManager.SENSOR_DELAY_NORMAL);
 
+		isRunning = true;
 		return START_STICKY;
 	}
 
@@ -89,5 +92,11 @@ public class SensorService extends Service implements SensorEventListener {
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	}
+
+	@Override
+	public void onDestroy() {
+		isRunning = false;
+		super.onDestroy();
 	}
 }

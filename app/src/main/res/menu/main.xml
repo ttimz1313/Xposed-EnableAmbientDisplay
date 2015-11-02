@@ -33,4 +33,10 @@
         android:id="@+id/hot_reboot"
         android:title="@string/hot_reboot"/>
 
+    <item
+        android:id="@+id/startservice"
+        android:icon="@android:drawable/ic_media_play"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/start_service"/>
+
 </menu>

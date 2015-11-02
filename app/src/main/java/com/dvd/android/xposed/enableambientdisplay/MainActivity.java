@@ -27,6 +27,7 @@ package com.dvd.android.xposed.enableambientdisplay;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -76,19 +77,25 @@ public class MainActivity extends PreferenceActivity
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
-		if (sharedPreferences.getString(key, "").equals("")) {
-			if (key.equals("doze_pulse_duration_visible")) {
-				sharedPreferences.edit().putString(key, "3000").apply();
-			} else {
-				sharedPreferences.edit().putString(key, "1000").apply();
+		try {
+			if (sharedPreferences.getString(key, "").equals("")) {
+				if (key.equals("doze_pulse_duration_visible")) {
+					sharedPreferences.edit().putString(key, "3000").apply();
+				} else {
+					sharedPreferences.edit().putString(key, "1000").apply();
+				}
+				EditTextPreference editTextPreference = (EditTextPreference) findPreference(
+						key);
+				editTextPreference
+						.setText(sharedPreferences.getString(key, ""));
 			}
-			EditTextPreference editTextPreference = (EditTextPreference) findPreference(
-					key);
-			editTextPreference.setText(sharedPreferences.getString(key, ""));
+		} catch (ClassCastException ignored) {
 		}
 
-		Toast.makeText(getApplicationContext(),
-				getString(R.string.reboot_required), Toast.LENGTH_LONG).show();
+		if (!key.equals("pick_up_enabled"))
+			Toast.makeText(getApplicationContext(),
+					getString(R.string.reboot_required), Toast.LENGTH_LONG)
+					.show();
 	}
 
 	@Override
@@ -119,6 +126,10 @@ public class MainActivity extends PreferenceActivity
 							Toast.LENGTH_SHORT).show();
 				}
 				break;
+			case R.id.startservice:
+				if (!SensorService.isRunning)
+					startService(
+							new Intent().setClass(this, SensorService.class));
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -128,33 +139,36 @@ public class MainActivity extends PreferenceActivity
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
 			Preference preference) {
 
-		switch (preference.getKey()) {
-			case "doze_small_icon_alpha":
-				createAlert(preference.getKey(), "222", 255);
-				break;
-			case "config_screenBrightnessDoze":
-				createAlert(preference.getKey(), "17", 100);
-				break;
-			case "doze_pulse_schedule_resets":
-				createAlert(preference.getKey(), "1", 5);
-				break;
-			case "root":
-				if (RootShell.isRootAvailable()) {
-					Command command = new Command(0, "echo test");
-					try {
-						RootShell.getShell(true).add(command);
-					} catch (IOException | TimeoutException e) {
-						e.printStackTrace();
-					} catch (RootDeniedException e) {
-						Toast.makeText(MainActivity.this, R.string.grant_root,
-								Toast.LENGTH_SHORT).show();
+		if (preference.getKey() != null)
+			switch (preference.getKey()) {
+				case "doze_small_icon_alpha":
+					createAlert(preference.getKey(), "222", 255);
+					break;
+				case "config_screenBrightnessDoze":
+					createAlert(preference.getKey(), "17", 100);
+					break;
+				case "doze_pulse_schedule_resets":
+					createAlert(preference.getKey(), "1", 5);
+					break;
+				case "root":
+					if (RootShell.isRootAvailable()) {
+						Command command = new Command(0, "echo test");
+						try {
+							RootShell.getShell(true).add(command);
+						} catch (IOException | TimeoutException e) {
+							e.printStackTrace();
+						} catch (RootDeniedException e) {
+							Toast.makeText(MainActivity.this,
+									R.string.grant_root, Toast.LENGTH_SHORT)
+									.show();
+						}
+					} else {
+						Toast.makeText(MainActivity.this,
+								R.string.root_not_found, Toast.LENGTH_SHORT)
+								.show();
 					}
-				} else {
-					Toast.makeText(MainActivity.this, R.string.root_not_found,
-							Toast.LENGTH_SHORT).show();
-				}
-				break;
-		}
+					break;
+			}
 
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
 	}
